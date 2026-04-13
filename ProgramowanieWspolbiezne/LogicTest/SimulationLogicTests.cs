@@ -1,0 +1,82 @@
+using Data;
+using Logic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace LogicTest
+{
+    [TestClass]
+    public sealed class SimulationLogicTests
+    {
+        [TestMethod]
+        public void Step_BallMovesWhenVelocityIsNonZero()
+        {
+            // Czy kula porusza się, gdy ma nadaną prędkość?
+            // Robimy kulę z prędkością (2, 3).
+            // Robimy step.
+            // Sprawdzamy, czy się poturlała.
+            
+            IBallRepository repo = new BallRepository();
+            ISimulationLogic logic = new SimulationLogic(repo);
+
+            IBall ball = new Ball(positionX: 10, positionY: 10, velocityX: 2, velocityY: 3, diameter: 10);
+            repo.Add(ball);
+
+            double width = 100;
+            double height = 100;
+
+            double oldX = ball.positionX;
+            double oldY = ball.positionY;
+
+            logic.Step(width, height);
+
+            Assert.AreNotEqual(oldX, ball.positionX);
+            Assert.AreNotEqual(oldY, ball.positionY);
+            Assert.AreEqual(2, ball.velocityX);
+            Assert.AreEqual(3, ball.velocityY);
+        }
+
+        [TestMethod]
+        public void Step_BouncesOnRightWallAndFlipsVelocityX()
+        {
+            // Czy kula odbije się od ściany?
+            // Robimy kulkę z prędkością 5 zaraz przy ścianie.
+            // Sprawdzamy, czy po zrobieniu step jej velocity się odwróci.
+            
+            IBallRepository repo = new BallRepository();
+            ISimulationLogic logic = new SimulationLogic(repo);
+
+            double width = 100;
+            double height = 100;
+            double diameter = 10;
+
+            IBall ball = new Ball(positionX: width - diameter - 1, positionY: 10, velocityX: 5, velocityY: 0, diameter: diameter);
+            repo.Add(ball);
+
+            logic.Step(width, height);
+
+            Assert.IsTrue(ball.velocityX < 0, "Kulka powinna odwrócić velocity po uderzeniu.");
+        }
+
+        [TestMethod]
+        public void Step_BouncesOnTopWallAndFlipsVelocityY()
+        {
+            // Czy kula odbije się od sufitu?
+            // Robimy kulkę z prędkością -4 zaraz przy suficie.
+            // Sprawdzamy, czy po zrobieniu step jej velocity się odwróci.
+            
+            IBallRepository repo = new BallRepository();
+            ISimulationLogic logic = new SimulationLogic(repo);
+
+            double width = 100;
+            double height = 100;
+            double diameter = 10;
+
+            IBall ball = new Ball(positionX: 10, positionY: 1, velocityX: 0, velocityY: -4, diameter: diameter);
+            repo.Add(ball);
+
+            logic.Step(width, height);
+
+            Assert.IsTrue(ball.velocityY > 0, "Kulka powinna odwrócić velocity po uderzeniu.");
+        }
+    }
+}
