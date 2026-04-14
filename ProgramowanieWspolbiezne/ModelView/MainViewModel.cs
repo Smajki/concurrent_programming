@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using Logic;
+using Data;
 
 namespace ModelView
 {
@@ -52,11 +53,10 @@ namespace ModelView
 
             _logic.Step(PlayfieldWidth, PlayfieldHeight);
 
-            var modelBalls = _logic.Balls;
-            int n = Math.Min(modelBalls.Count, Balls.Count);
+            int n = Math.Min(_modelBalls.Count, Balls.Count);
 
             for (int i = 0; i < n; i++)
-                Balls[i].UpdateFrom(modelBalls[i]);
+                Balls[i].UpdateFrom(_modelBalls[i]);
         }
 
         private void Start()
@@ -67,8 +67,10 @@ namespace ModelView
 
             _logic.Initialize(count, PlayfieldWidth, PlayfieldHeight);
 
+            _modelBalls = _logic.Balls;
+
             Balls.Clear();
-            foreach (var ball in _logic.Balls)
+            foreach (var ball in _modelBalls)
             {
                 var vm = new BallViewModel();
                 vm.UpdateFrom(ball);
@@ -82,5 +84,7 @@ namespace ModelView
         {
             IsRunning = false;
         }
+        
+        private IReadOnlyList<IBall> _modelBalls = Array.Empty<IBall>();
     }
 }
