@@ -38,18 +38,25 @@
 						</ItemsPanelTemplate>
 					</ItemsControl.ItemsPanel>
 
+					<ItemsControl.ItemContainerStyle>
+						<Style TargetType="ContentPresenter">
+							<Setter Property="Canvas.Left" Value="{Binding X}" />
+							<Setter Property="Canvas.Top" Value="{Binding Y}" />
+						</Style>
+					</ItemsControl.ItemContainerStyle>
+
 					<ItemsControl.ItemTemplate>
 						<DataTemplate>
 							<Ellipse Fill="Purple"
-                                     Stroke="Black"
-                                     StrokeThickness="1"
-                                     Width="{Binding Diameter}"
-                                     Height="{Binding Diameter}"
-                                     Canvas.Left="{Binding X}"
-                                     Canvas.Top="{Binding Y}" />
+							         Stroke="Black"
+							         StrokeThickness="1"
+							         Width="{Binding Diameter}"
+							         Height="{Binding Diameter}" />
 						</DataTemplate>
 					</ItemsControl.ItemTemplate>
 				</ItemsControl>
+				
+				
 			</Grid>
 		</Border>
 	</Grid>
