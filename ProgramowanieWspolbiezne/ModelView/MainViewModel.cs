@@ -63,7 +63,7 @@ namespace ModelView
         {
             int count = BallsCount;
             if (count < 1) count = 1;
-            if (count > 300) count = 300;
+            //if (count > 300) count = 300;
 
             _logic.Initialize(count, PlayfieldWidth, PlayfieldHeight);
 

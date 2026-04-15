@@ -28,9 +28,9 @@ namespace ModelView
 
         public void UpdateFrom(IBall ball)
         {
-            X = ball.positionX;
-            Y = ball.positionY;
-            Diameter = ball.diameter;
+            X = ball.Position.X;
+            Y = ball.Position.Y;
+            Diameter = ball.Diameter;
         }
     }
 }

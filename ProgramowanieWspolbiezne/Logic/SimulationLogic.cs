@@ -56,17 +56,17 @@ namespace Logic
             {
                 ball.move();
 
-                if (ball.positionX <= 0 && ball.velocityX < 0)
-                    ball.velocityX = -ball.velocityX;
+                if (ball.Position.X <= 0 && ball.Velocity.X < 0)
+                    ball.Velocity.X = -ball.Velocity.X;
 
-                if (ball.positionX + ball.diameter >= areaWidth && ball.velocityX > 0)
-                    ball.velocityX = -ball.velocityX;
+                if (ball.Position.X + ball.Diameter >= areaWidth && ball.Velocity.X > 0)
+                    ball.Velocity.X = -ball.Velocity.X;
 
-                if (ball.positionY <= 0 && ball.velocityY < 0)
-                    ball.velocityY = -ball.velocityY;
+                if (ball.Position.Y <= 0 && ball.Velocity.Y < 0)
+                    ball.Velocity.Y = -ball.Velocity.Y;
 
-                if (ball.positionY + ball.diameter >= areaHeight && ball.velocityY > 0)
-                    ball.velocityY = -ball.velocityY;
+                if (ball.Position.Y + ball.Diameter >= areaHeight && ball.Velocity.Y > 0)
+                    ball.Velocity.Y = -ball.Velocity.Y;
             }
         }
 

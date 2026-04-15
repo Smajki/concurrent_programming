@@ -12,26 +12,26 @@ namespace Data.Test
             double initVelocityX = -3;
             double initVelocityY = 2;
             double initDiamater = 8;
-            Ball b= new Ball(initPositionX, initPositionY, initVelocityX, initVelocityY, initDiamater);
-            Assert.AreEqual(initPositionX, b.positionX);
-            Assert.AreEqual(initPositionY, b.positionY);
-            Assert.AreEqual(initVelocityX, b.velocityX);
-            Assert.AreEqual(initVelocityY, b.velocityY);
-            Assert.AreEqual(initDiamater, b.diameter);
+            Ball b = new Ball(initPositionX, initPositionY, initVelocityX, initVelocityY, initDiamater);
+            Assert.AreEqual(initPositionX, b.Position.X);
+            Assert.AreEqual(initPositionY, b.Position.Y);
+            Assert.AreEqual(initVelocityX, b.Velocity.X);
+            Assert.AreEqual(initVelocityY, b.Velocity.Y);
+            Assert.AreEqual(initDiamater, b.Diameter);
             b.move();
-            Assert.AreEqual(initPositionX + initVelocityX, b.positionX);
-            Assert.AreEqual(initPositionY + initVelocityY, b.positionY);
-            b.velocityX = 0;
-            Assert.AreEqual(0, b.velocityX);
-            b.velocityY = 4;
-            Assert.AreEqual(4, b.velocityY);
+            Assert.AreEqual(initPositionX + initVelocityX, b.Position.X);
+            Assert.AreEqual(initPositionY + initVelocityY, b.Position.Y);
+            b.Velocity.X = 0;
+            Assert.AreEqual(0, b.Velocity.X);
+            b.Velocity.Y = 4;
+            Assert.AreEqual(4, b.Velocity.Y);
 
         }
         [TestMethod]
         public void ballRepositoryTest() {
             BallRepository repo = new Data.BallRepository();
             Assert.IsEmpty(repo.GetAll());
-            Ball b = new Ball(1,2,1,1,6);
+            Ball b = new Ball(1, 2, 1, 1, 6);
             repo.Add(b);
             Assert.AreEqual(1, repo.GetAll().Count());
             Ball b2 = new Ball(2, 2, 1, 1, 6);
@@ -46,5 +46,20 @@ namespace Data.Test
             repo.RemoveAll();
             Assert.IsEmpty(repo.GetAll());
         }
+        [TestMethod]
+        public void vectorTest() {
+            double initX = 10;
+            double initY = -2;
+            double newX = 10;
+            double newY = -2;
+            Vector v = new Vector(initX, initY);
+            Assert.AreEqual(initX, v.X);
+            Assert.AreEqual(initY, v.Y);
+            v.X = newX;
+            Assert.AreEqual(newX, v.X);
+            Assert.AreEqual(initY, v.Y);
+            v.Y = newY;
+            Assert.AreEqual(newY, v.Y);
+        } 
     }
 }

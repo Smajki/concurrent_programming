@@ -24,15 +24,15 @@ namespace LogicTest
             double width = 100;
             double height = 100;
 
-            double oldX = ball.positionX;
-            double oldY = ball.positionY;
+            double oldX = ball.Position.X;
+            double oldY = ball.Position.Y;
 
             logic.Step(width, height);
 
-            Assert.AreNotEqual(oldX, ball.positionX);
-            Assert.AreNotEqual(oldY, ball.positionY);
-            Assert.AreEqual(2, ball.velocityX);
-            Assert.AreEqual(3, ball.velocityY);
+            Assert.AreNotEqual(oldX, ball.Position.X);
+            Assert.AreNotEqual(oldY, ball.Position.Y);
+            Assert.AreEqual(2, ball.Velocity.X);
+            Assert.AreEqual(3, ball.Velocity.Y);
         }
 
         [TestMethod]
@@ -54,7 +54,7 @@ namespace LogicTest
 
             logic.Step(width, height);
 
-            Assert.IsTrue(ball.velocityX < 0, "Kulka powinna odwrócić velocity po uderzeniu.");
+            Assert.IsTrue(ball.Velocity.X < 0, "Kulka powinna odwrócić velocity po uderzeniu.");
         }
 
         [TestMethod]
@@ -76,7 +76,7 @@ namespace LogicTest
 
             logic.Step(width, height);
 
-            Assert.IsTrue(ball.velocityY > 0, "Kulka powinna odwrócić velocity po uderzeniu.");
+            Assert.IsTrue(ball.Velocity.Y > 0, "Kulka powinna odwrócić velocity po uderzeniu.");
         }
     }
 }
