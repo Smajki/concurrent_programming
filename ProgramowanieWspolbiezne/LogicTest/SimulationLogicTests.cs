@@ -78,5 +78,32 @@ namespace LogicTest
 
             Assert.IsTrue(ball.Velocity.Y > 0, "Kulka powinna odwrócić velocity po uderzeniu.");
         }
+        [TestMethod]
+        public void constructorExceptionTest()
+        {
+            Assert.Throws<ArgumentNullException>(() => new SimulationLogic(null));
+
+        }
+        [TestMethod]
+        public void stepMethodExceptionTest()
+        {
+            SimulationLogic sl = new SimulationLogic(new BallRepository());
+            Assert.Throws<ArgumentOutOfRangeException>(() => sl.Step(-1,5));
+            Assert.Throws<ArgumentOutOfRangeException>(() => sl.Step(5, -5));
+
+        }
+        [TestMethod]
+        public void initalizeMethodTest()
+        {
+            SimulationLogic sl = new SimulationLogic(new BallRepository());
+            Assert.Throws<ArgumentOutOfRangeException>(() => sl.Initialize(-1,4,5));
+            Assert.Throws<ArgumentOutOfRangeException>(() => sl.Initialize(2, 0, 5));
+            Assert.Throws<ArgumentOutOfRangeException>(() => sl.Initialize(2, -1, 5));
+            Assert.Throws<ArgumentOutOfRangeException>(() => sl.Initialize(2, 5, 0));
+            int ballsNumber = 2;
+            sl.Initialize(ballsNumber, 20, 25);
+            Assert.HasCount(ballsNumber, sl.Balls);
+        }
     }
+        
 }
