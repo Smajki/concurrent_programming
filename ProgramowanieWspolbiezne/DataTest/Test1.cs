@@ -18,7 +18,8 @@ namespace Data.Test
             Assert.AreEqual(initVelocityX, b.Velocity.X);
             Assert.AreEqual(initVelocityY, b.Velocity.Y);
             Assert.AreEqual(initDiamater, b.Diameter);
-            b.move();
+            b.Position.X = initPositionX + initVelocityX;
+            b.Position.Y = initPositionY + initVelocityY;
             Assert.AreEqual(initPositionX + initVelocityX, b.Position.X);
             Assert.AreEqual(initPositionY + initVelocityY, b.Position.Y);
             b.Velocity.X = 0;

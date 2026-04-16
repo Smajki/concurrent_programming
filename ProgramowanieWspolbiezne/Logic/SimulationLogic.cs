@@ -54,7 +54,8 @@ namespace Logic
 
             foreach (var ball in _repository.GetAll())
             {
-                ball.move();
+                ball.Position.X += ball.Velocity.X;
+                ball.Position.Y += ball.Velocity.Y;
 
                 if (ball.Position.X <= 0 && ball.Velocity.X < 0)
                     ball.Velocity.X = -ball.Velocity.X;

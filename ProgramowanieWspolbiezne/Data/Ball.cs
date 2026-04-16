@@ -2,7 +2,7 @@
 {
     public class Ball : IBall
     {
-        public Vector Position { get; private set; }
+        public Vector Position { get; set; }
 
         public Vector Velocity { get; set; }
 
@@ -14,12 +14,5 @@
             Velocity = new Vector(velocityX, velocityY);
             this.Diameter = diameter;
         }
-        public void move()
-        {
-            Position.X += Velocity.X;
-            Position.Y += Velocity.Y;
-        }
-
-
     }
 }

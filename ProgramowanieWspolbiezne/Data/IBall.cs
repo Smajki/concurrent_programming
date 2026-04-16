@@ -8,11 +8,10 @@ namespace Data
 {
     public interface IBall
     {
-        public Vector Position { get;}
+        public Vector Position { get; set; }
 
         public Vector Velocity { get; set; }
 
-        public double Diameter {  get;}
-        public void move();       
+        public double Diameter {  get;}   
     }
 }
