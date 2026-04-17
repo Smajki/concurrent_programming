@@ -57,16 +57,18 @@ namespace Logic
                 ball.Position.X += ball.Velocity.X;
                 ball.Position.Y += ball.Velocity.Y;
 
+                const double eps = 5;
+
                 if (ball.Position.X <= 0 && ball.Velocity.X < 0)
                     ball.Velocity.X = -ball.Velocity.X;
 
-                if (ball.Position.X + ball.Diameter >= areaWidth && ball.Velocity.X > 0)
+                if (ball.Position.X + ball.Diameter >= areaWidth - eps && ball.Velocity.X > 0)
                     ball.Velocity.X = -ball.Velocity.X;
 
                 if (ball.Position.Y <= 0 && ball.Velocity.Y < 0)
                     ball.Velocity.Y = -ball.Velocity.Y;
 
-                if (ball.Position.Y + ball.Diameter >= areaHeight && ball.Velocity.Y > 0)
+                if (ball.Position.Y + ball.Diameter >= areaHeight - eps && ball.Velocity.Y > 0)
                     ball.Velocity.Y = -ball.Velocity.Y;
             }
         }
