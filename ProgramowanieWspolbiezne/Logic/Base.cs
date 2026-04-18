@@ -1,9 +1,9 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace ModelView
+namespace Logic
 {
-    public abstract class ViewModelBase : INotifyPropertyChanged
+    public abstract class Base : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 

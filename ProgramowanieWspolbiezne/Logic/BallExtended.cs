@@ -1,8 +1,8 @@
 using Data;
 
-namespace ModelView
+namespace Logic
 {
-    public sealed class BallViewModel : ViewModelBase
+    public sealed class BallExtended : Base
     {
         private double _x;
         private double _y;
@@ -28,8 +28,8 @@ namespace ModelView
 
         public void UpdateFrom(IBall ball)
         {
-            X = ball.Position.X;
-            Y = ball.Position.Y;
+            X = ball.Position.X - ball.Diameter / 2;
+            Y = ball.Position.Y - ball.Diameter / 2;
             Diameter = ball.Diameter;
         }
     }

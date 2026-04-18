@@ -54,23 +54,43 @@ namespace Logic
 
             foreach (var ball in _repository.GetAll())
             {
-                ball.Position.X += ball.Velocity.X;
-                ball.Position.Y += ball.Velocity.Y;
+                double ballRadious = ball.Diameter / 2;
+                double newPositionX = ball.Position.X + ball.Velocity.X;
+                double newPositionY = ball.Position.Y + ball.Velocity.Y;
 
-                const double eps = 5;
-
-                if (ball.Position.X <= 0 && ball.Velocity.X < 0)
+                if (newPositionX <= ballRadious && ball.Velocity.X < 0)
+                {
+                    ball.Position.X = ballRadious - (newPositionX - ballRadious);
                     ball.Velocity.X = -ball.Velocity.X;
+                }
 
-                if (ball.Position.X + ball.Diameter >= areaWidth - eps && ball.Velocity.X > 0)
+                else if (newPositionX >= (areaWidth - ballRadious) && ball.Velocity.X > 0)
+                {
+                    ball.Position.X = areaWidth - ballRadious - (newPositionX - (areaWidth - ballRadious));
                     ball.Velocity.X = -ball.Velocity.X;
+                }
+                else
+                {
+                    ball.Position.X = newPositionX;
+                }
 
-                if (ball.Position.Y <= 0 && ball.Velocity.Y < 0)
+                if (newPositionY <= ballRadious && ball.Velocity.Y < 0)
+                {
+                    ball.Position.Y = ballRadious - (newPositionY - ballRadious);
                     ball.Velocity.Y = -ball.Velocity.Y;
 
-                if (ball.Position.Y + ball.Diameter >= areaHeight - eps && ball.Velocity.Y > 0)
+                }
+                else if (newPositionY >= (areaHeight - ballRadious) && ball.Velocity.Y > 0)
+                {
+                    ball.Position.Y = areaHeight - ballRadious - (newPositionY - (areaHeight - ballRadious));
                     ball.Velocity.Y = -ball.Velocity.Y;
+                }
+                else 
+                {
+                    ball.Position.Y = newPositionY;
+                }
             }
+
         }
 
         public void Clear()

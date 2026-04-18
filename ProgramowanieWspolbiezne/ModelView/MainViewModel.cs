@@ -1,90 +1,30 @@
-using System;
-using System.Collections.ObjectModel;
 using Logic;
-using Data;
+using ModelView;
 
-namespace ModelView
+public sealed class MainViewModel : Base
 {
-    public sealed class MainViewModel : ViewModelBase
+    public SimulationModel Model { get; }
+
+    public RelayCommand StartCommand { get; }
+    public RelayCommand StopCommand { get; }
+
+    public MainViewModel(ISimulationLogic logic)
     {
-        private readonly ISimulationLogic _logic;
-
-        private int _ballsCount = 10;
-        private bool _isRunning;
-
-        public double PlayfieldWidth { get; } = 730;
-        public double PlayfieldHeight { get; } = 430;
-
-        public ObservableCollection<BallViewModel> Balls { get; } = new();
-
-        public int BallsCount
+        Model = new SimulationModel(logic);
+        StartCommand = new RelayCommand(Model.Start, () => !Model.IsRunning);
+        StopCommand = new RelayCommand(Model.Stop, () => Model.IsRunning);
+        Model.PropertyChanged += (_, e) =>
         {
-            get => _ballsCount;
-            set => SetField(ref _ballsCount, value);
-        }
-
-        public bool IsRunning
-        {
-            get => _isRunning;
-            private set
+            if (e.PropertyName == nameof(Model.IsRunning))
             {
-                if (SetField(ref _isRunning, value))
-                {
-                    StartCommand.RaiseCanExecuteChanged();
-                    StopCommand.RaiseCanExecuteChanged();
-                }
+                StartCommand.RaiseCanExecuteChanged();
+                StopCommand.RaiseCanExecuteChanged();
             }
-        }
+        };
+    }
 
-        public RelayCommand StartCommand { get; }
-        public RelayCommand StopCommand { get; }
-
-        public MainViewModel(ISimulationLogic logic)
-        {
-            _logic = logic ?? throw new ArgumentNullException(nameof(logic));
-
-            StartCommand = new RelayCommand(Start, () => !IsRunning);
-            StopCommand = new RelayCommand(Stop, () => IsRunning);
-        }
-
-        public void Tick()
-        {
-            if (!IsRunning) return;
-
-            _logic.Step(PlayfieldWidth, PlayfieldHeight);
-
-            int n = Math.Min(_modelBalls.Count, Balls.Count);
-
-            for (int i = 0; i < n; i++)
-                Balls[i].UpdateFrom(_modelBalls[i]);
-        }
-
-        private void Start()
-        {
-            int count = BallsCount;
-            if (count < 1) count = 1;
-            //if (count > 300) count = 300;
-
-            _logic.Initialize(count, PlayfieldWidth, PlayfieldHeight);
-
-            _modelBalls = _logic.Balls;
-
-            Balls.Clear();
-            foreach (var ball in _modelBalls)
-            {
-                var vm = new BallViewModel();
-                vm.UpdateFrom(ball);
-                Balls.Add(vm);
-            }
-
-            IsRunning = true;
-        }
-
-        private void Stop()
-        {
-            IsRunning = false;
-        }
-        
-        private IReadOnlyList<IBall> _modelBalls = Array.Empty<IBall>();
+    public void Tick()
+    {
+        Model.Tick();
     }
 }
