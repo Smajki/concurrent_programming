@@ -24,18 +24,18 @@ namespace LogicTest
         [TestMethod]
         public void UpdateFromRaisesPropertyChangedForAllPropertiesAndDoesNotRaisePropertyChangedWhenValuesAreSame()
         {
-            var vm = new BallExtended();
+            var b = new BallExtended();
             var ball = new Ball(10, 20, 0, 0, 10);
 
             var changed = new List<string>();
-            vm.PropertyChanged += (_, e) => changed.Add(e.PropertyName!);
-            vm.UpdateFrom(ball);
+            b.PropertyChanged += (_, e) => changed.Add(e.PropertyName!);
+            b.UpdateFrom(ball);
             CollectionAssert.Contains(changed, "X");
             CollectionAssert.Contains(changed, "Y");
             CollectionAssert.Contains(changed, "Diameter");
             changed.Clear();
-            vm.UpdateFrom(ball); // te same wartości
-            Assert.AreEqual(0, changed.Count);
+            b.UpdateFrom(ball); // te same wartości
+            Assert.IsEmpty(changed);
         }
     }
 }
