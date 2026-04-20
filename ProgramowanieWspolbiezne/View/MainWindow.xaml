@@ -5,8 +5,6 @@
     <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="12"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -21,8 +19,8 @@
             <Button Content="Stop" Width="80"
                     Command="{Binding StopCommand}"/>
         </StackPanel>
-
-        <Border Grid.Row="2"
+        <Viewbox Stretch="Uniform" Grid.Row="2">
+            <Border Grid.Row="2"
                 BorderBrush="Black"
                 BorderThickness="3"
                 Background="#1e6932"
@@ -30,32 +28,33 @@
                 Height="{Binding Model.PlayfieldHeight}"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top">
-            <Grid>
-                <ItemsControl ItemsSource="{Binding Model.Balls}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <Canvas />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
+                <Grid>
+                    <ItemsControl ItemsSource="{Binding Model.Balls}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
 
-                    <ItemsControl.ItemContainerStyle>
-                        <Style TargetType="ContentPresenter">
-                            <Setter Property="Canvas.Left" Value="{Binding X}" />
-                            <Setter Property="Canvas.Top" Value="{Binding Y}" />
-                        </Style>
-                    </ItemsControl.ItemContainerStyle>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter">
+                                <Setter Property="Canvas.Left" Value="{Binding X}" />
+                                <Setter Property="Canvas.Top" Value="{Binding Y}" />
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
 
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Ellipse Fill="Purple"
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Ellipse Fill="Purple"
                                      Stroke="Black"
                                      StrokeThickness="1"
                                      Width="{Binding Diameter}"
                                      Height="{Binding Diameter}" />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </Grid>
-        </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </Border>
+        </Viewbox>
     </Grid>
 </Window>
