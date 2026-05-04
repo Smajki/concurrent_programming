@@ -9,6 +9,9 @@ public sealed class SimulationModel : Base
     public double PlayfieldWidth { get; } = 730;
     public double PlayfieldHeight { get; } = 430;
 
+    private CancellationTokenSource _cts;
+
+
     public ObservableCollection<BallExtended> Balls { get; } = new();
 
     private IReadOnlyList<IBall> _modelBalls = Array.Empty<IBall>();
@@ -47,12 +50,22 @@ public sealed class SimulationModel : Base
             vm.UpdateFrom(ball);
             Balls.Add(vm);
         }
-
+        _cts = new CancellationTokenSource();
+        CancellationToken token = _cts.Token;
+        foreach (var ball in _modelBalls)
+        {
+            _ = Task.Run(() =>
+                _logic.MoveBallAsync(token, ball, PlayfieldWidth, PlayfieldHeight),
+                token
+            );
+        }
         IsRunning = true;
     }
 
     public void Stop()
     {
+        _cts.Cancel(); 
+        _cts.Dispose();
         IsRunning = false;
     }
 
@@ -60,9 +73,9 @@ public sealed class SimulationModel : Base
     {
         if (!IsRunning) return;
 
-        _logic.Step(PlayfieldWidth, PlayfieldHeight);
+    //    _logic.Step(PlayfieldWidth, PlayfieldHeight);
 
-        for (int i = 0; i < _modelBalls.Count; i++)
+       for (int i = 0; i < _modelBalls.Count; i++)
             Balls[i].UpdateFrom(_modelBalls[i]);
-    }
+   }
 }

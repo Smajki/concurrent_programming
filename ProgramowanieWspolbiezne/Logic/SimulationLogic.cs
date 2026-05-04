@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Data;
+using System.Diagnostics;
 
 namespace Logic
 {
@@ -9,6 +10,8 @@ namespace Logic
     {
         private readonly IBallRepository _repository;
         private readonly Random _random;
+        private readonly object _lock = new object();
+
 
         public SimulationLogic(IBallRepository repository, Random? random = null)
         {
@@ -34,7 +37,7 @@ namespace Logic
 
             for (int i = 0; i < ballsCount; i++)
             {
-                double diameter = NextDouble(10, 30);
+                double diameter = 25;
 
                 double x = NextDouble(0, Math.Max(0, areaWidth - diameter));
                 double y = NextDouble(0, Math.Max(0, areaHeight - diameter));
@@ -43,56 +46,162 @@ namespace Logic
                 double vy = NextNonZeroVelocity(-3, 3);
 
                 IBall ball = new Ball(x, y, vx, vy, diameter);
+                ball.Id = i;
                 _repository.Add(ball);
             }
         }
 
         public void Step(double areaWidth, double areaHeight)
         {
-            if (areaWidth <= 0) throw new ArgumentOutOfRangeException(nameof(areaWidth));
-            if (areaHeight <= 0) throw new ArgumentOutOfRangeException(nameof(areaHeight));
+            //if (areaWidth <= 0) throw new ArgumentOutOfRangeException(nameof(areaWidth));
+            //if (areaHeight <= 0) throw new ArgumentOutOfRangeException(nameof(areaHeight));
 
-            foreach (var ball in _repository.GetAll())
-            {
-                double ballRadious = ball.Diameter / 2;
-                double newPositionX = ball.Position.X + ball.Velocity.X;
-                double newPositionY = ball.Position.Y + ball.Velocity.Y;
+            //List<IBall> balls = _repository.GetAll().ToList();
+            ////foreach (var ball in _repository.GetAll())
+            //int nmbrOfBalls = balls.Count;
+            //for (int i = 0; i < nmbrOfBalls; i++)
+            //{
+            //    IBall ball = balls[i];
+            //    checkCollisonsWithWalls(ball, areaWidth, areaHeight);
+            //    for (int j = i + 1; j < nmbrOfBalls; j++)
+            //    {
+            //        if (CheckBallsCollision(ball, balls[j], true))
+            //        {
+            //            SeparateBalls(ball, balls[j]);
+            //        }
+            //        if (CheckBallsCollision(ball, balls[j], false))
+            //        {
+            //            ball.Collide(balls[j]);
+            //        }
 
-                if (newPositionX <= ballRadious && ball.Velocity.X < 0)
-                {
-                    ball.Position.X = ballRadious - (newPositionX - ballRadious);
-                    ball.Velocity.X = -ball.Velocity.X;
-                }
-
-                else if (newPositionX >= (areaWidth - ballRadious) && ball.Velocity.X > 0)
-                {
-                    ball.Position.X = areaWidth - ballRadious - (newPositionX - (areaWidth - ballRadious));
-                    ball.Velocity.X = -ball.Velocity.X;
-                }
-                else
-                {
-                    ball.Position.X = newPositionX;
-                }
-
-                if (newPositionY <= ballRadious && ball.Velocity.Y < 0)
-                {
-                    ball.Position.Y = ballRadious - (newPositionY - ballRadious);
-                    ball.Velocity.Y = -ball.Velocity.Y;
-
-                }
-                else if (newPositionY >= (areaHeight - ballRadious) && ball.Velocity.Y > 0)
-                {
-                    ball.Position.Y = areaHeight - ballRadious - (newPositionY - (areaHeight - ballRadious));
-                    ball.Velocity.Y = -ball.Velocity.Y;
-                }
-                else 
-                {
-                    ball.Position.Y = newPositionY;
-                }
-            }
+            //    }
+            //}
 
         }
+        public async Task MoveBallAsync(CancellationToken token, IBall ball, double areaWidth, double areaHeight)
+        {
+            {
+                Stopwatch stopwach = new Stopwatch();
+                while (!token.IsCancellationRequested)
+                {
+                    stopwach.Restart();
+                    checkCollisonsWithWalls(ball, areaWidth, areaHeight);
+                    lock (_lock)
+                    {
+                        CheckBallsCollisions(ball);
+                    }
+                    stopwach.Stop();
+                    int delay = Math.Max(0, 16 - (int)stopwach.Elapsed.Milliseconds);
+                    await Task.Delay(delay, token);
+                }
+            }
+        }
 
+
+        public void checkCollisonsWithWalls(IBall ball, double areaWidth, double areaHeight)
+        {
+            double ballRadious = ball.Diameter / 2;
+            double newPositionX = ball.Position.X + ball.Velocity.X;
+            double newPositionY = ball.Position.Y + ball.Velocity.Y;
+
+            if (newPositionX <= ballRadious && ball.Velocity.X < 0)
+            {
+                ball.Position.X = ballRadious - (newPositionX - ballRadious);
+                ball.Velocity.X = -ball.Velocity.X;
+            }
+
+            else if (newPositionX >= (areaWidth - ballRadious) && ball.Velocity.X > 0)
+            {
+                ball.Position.X = areaWidth - ballRadious - (newPositionX - (areaWidth - ballRadious));
+                ball.Velocity.X = -ball.Velocity.X;
+            }
+            else
+            {
+                ball.Position.X = newPositionX;
+            }
+
+            if (newPositionY <= ballRadious && ball.Velocity.Y < 0)
+            {
+                ball.Position.Y = ballRadious - (newPositionY - ballRadious);
+                ball.Velocity.Y = -ball.Velocity.Y;
+
+            }
+            else if (newPositionY >= (areaHeight - ballRadious) && ball.Velocity.Y > 0)
+            {
+                ball.Position.Y = areaHeight - ballRadious - (newPositionY - (areaHeight - ballRadious));
+                ball.Velocity.Y = -ball.Velocity.Y;
+            }
+            else
+            {
+                ball.Position.Y = newPositionY;
+            }
+        }
+        private static double DistanceBetweenBallsCenters(IBall b1, IBall b2)
+        {
+            double dx = b1.Position.X - b2.Position.X;
+            double dy = b1.Position.Y - b2.Position.Y;
+            return Math.Sqrt(dx * dx + dy * dy);
+        }
+
+        private static double SumOfBallsRadiuses(IBall b1, IBall b2)
+        {
+            return 0.5 * (b1.Diameter + b2.Diameter);
+        }
+        public bool CheckBallsCollision(IBall b1, IBall b2, bool onlyOverlap)
+        {
+            double distance = DistanceBetweenBallsCenters(b1, b2);
+            double sumOfRadiuses = SumOfBallsRadiuses(b1, b2);
+
+            return onlyOverlap ? distance < sumOfRadiuses : distance <= sumOfRadiuses;
+        }
+        private static void SeparateBalls(IBall b1, IBall b2)
+        {
+            double distance = DistanceBetweenBallsCenters(b1, b2);
+            double minDistance = SumOfBallsRadiuses(b1, b2);
+
+            if (distance == 0)
+            {
+                distance = 0.0001;
+                b1.Position.X += 0.00005;
+                b2.Position.X -= 0.00005;
+            }
+
+            double overlap = minDistance - distance;
+            if (overlap <= 0)
+                return; 
+
+            double dx = (b1.Position.X - b2.Position.X) / distance;
+            double dy = (b1.Position.Y - b2.Position.Y) / distance;
+
+            double shift = overlap / 2.0;
+
+            b1.Position.X += dx * shift;
+            b1.Position.Y += dy * shift;
+
+            b2.Position.X -= dx * shift;
+            b2.Position.Y -= dy * shift;
+        }
+
+        public void CheckBallsCollisions(IBall ball)
+            {
+            List<IBall> balls = _repository.GetAll().ToList();
+            int nmbrOfBalls = balls.Count;
+            for (int i = 0; i < nmbrOfBalls; i++)
+            {
+                if (balls[i].Id > ball.Id) 
+                {
+                    if (CheckBallsCollision(ball, balls[i], true))
+                    {
+                        SeparateBalls(ball, balls[i]);
+                    }
+                     if (CheckBallsCollision(ball, balls[i], false))
+                    {
+                        ball.Collide(balls[i]);
+                    }
+                }
+                
+            }
+        }
         public void Clear()
         {
             _repository.RemoveAll();

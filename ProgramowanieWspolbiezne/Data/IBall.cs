@@ -12,6 +12,12 @@ namespace Data
 
         public Vector Velocity { get; set; }
 
-        public double Diameter {  get;}   
+        public double Diameter {  get;}
+
+        public double Mass { get; }
+
+        public double Id { get; set; }
+
+        public void Collide(IBall other);
     }
 }

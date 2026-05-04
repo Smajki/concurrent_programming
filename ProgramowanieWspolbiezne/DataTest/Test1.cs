@@ -1,4 +1,6 @@
 ﻿
+using System.Runtime.Intrinsics;
+
 namespace Data.Test
 {
     [TestClass]
@@ -12,7 +14,8 @@ namespace Data.Test
             double initVelocityX = -3;
             double initVelocityY = 2;
             double initDiamater = 8;
-            Ball b = new Ball(initPositionX, initPositionY, initVelocityX, initVelocityY, initDiamater);
+            double mass = 4;
+            Ball b = new Ball(initPositionX, initPositionY, initVelocityX, initVelocityY, initDiamater, mass);
             Assert.AreEqual(initPositionX, b.Position.X);
             Assert.AreEqual(initPositionY, b.Position.Y);
             Assert.AreEqual(initVelocityX, b.Velocity.X);
@@ -26,6 +29,7 @@ namespace Data.Test
             Assert.AreEqual(0, b.Velocity.X);
             b.Velocity.Y = 4;
             Assert.AreEqual(4, b.Velocity.Y);
+            Assert.AreEqual(mass, b.Mass);
 
         }
         [TestMethod]
@@ -53,14 +57,27 @@ namespace Data.Test
             double initY = -2;
             double newX = 10;
             double newY = -2;
+            double n = 2.5;
             Vector v = new Vector(initX, initY);
             Assert.AreEqual(initX, v.X);
+            
+            v = v.MultiplyByNumber(n);
+            Assert.AreEqual(initX * n, v.X);
+            Assert.AreEqual(initY * n, v.Y);
+
             Assert.AreEqual(initY, v.Y);
             v.X = newX;
             Assert.AreEqual(newX, v.X);
             Assert.AreEqual(initY, v.Y);
             v.Y = newY;
             Assert.AreEqual(newY, v.Y);
+
+            double X2 = 20;
+            double Y2 = -4.5;
+            Vector v2 = new Vector(X2, Y2);
+            Vector v3 = v2 + v;
+            Assert.AreEqual(v2.X+v.X, v3.X);
+            Assert.AreEqual(v2.Y + v.Y, v3.Y);
         } 
     }
 }
