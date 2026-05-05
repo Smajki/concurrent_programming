@@ -23,8 +23,8 @@ public sealed class MainViewModel : Base
         };
     }
 
-    public void Tick()
-    {
-        Model.Tick();
-    }
+//    public void Tick()
+//    {
+//        Model.Tick();
+//    }
 }

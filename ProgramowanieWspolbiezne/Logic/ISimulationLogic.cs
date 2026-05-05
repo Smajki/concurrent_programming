@@ -12,6 +12,8 @@ namespace Logic
         void Step(double areaWidth, double areaHeight);
 
         public Task MoveBallAsync(CancellationToken token, IBall ball, double areaWidth, double areaHeight);
+        
+        void MoveBallOneStep(IBall ball, double areaWidth, double areaHeight);
         void Clear();
     }
 }

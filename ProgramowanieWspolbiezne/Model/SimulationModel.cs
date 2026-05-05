@@ -1,6 +1,7 @@
 ﻿using Data;
 using Logic;
 using System.Collections.ObjectModel;
+using System.Windows.Threading;
 
 public sealed class SimulationModel : Base
 {
@@ -9,8 +10,7 @@ public sealed class SimulationModel : Base
     public double PlayfieldWidth { get; } = 730;
     public double PlayfieldHeight { get; } = 430;
 
-    private CancellationTokenSource _cts;
-
+    private CancellationTokenSource? _cts;
 
     public ObservableCollection<BallExtended> Balls { get; } = new();
 
@@ -33,11 +33,12 @@ public sealed class SimulationModel : Base
     public SimulationModel(ISimulationLogic logic)
     {
         _logic = logic;
-
     }
 
     public void Start()
     {
+        if (IsRunning) return;
+
         int count = Math.Max(1, BallsCount);
 
         _logic.Initialize(count, PlayfieldWidth, PlayfieldHeight);
@@ -52,30 +53,45 @@ public sealed class SimulationModel : Base
         }
         _cts = new CancellationTokenSource();
         CancellationToken token = _cts.Token;
-        foreach (var ball in _modelBalls)
+
+        Dispatcher uiDispatcher = Dispatcher.CurrentDispatcher;
+
+        for (int i = 0; i < _modelBalls.Count; i++)
         {
-            _ = Task.Run(() =>
-                _logic.MoveBallAsync(token, ball, PlayfieldWidth, PlayfieldHeight),
-                token
-            );
+            IBall modelBall = _modelBalls[i];
+            BallExtended ballVm = Balls[i];
+
+            _ = Task.Run(async () =>
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    var start = Environment.TickCount;
+
+                    _logic.MoveBallOneStep(modelBall, PlayfieldWidth, PlayfieldHeight);
+
+                    await uiDispatcher.BeginInvoke(() =>
+                    {
+                        ballVm.UpdateFrom(modelBall);
+                    });
+
+                    int elapsed = Environment.TickCount - start;
+                    int delay = Math.Max(0, 16 - elapsed);
+                    await Task.Delay(delay, token);
+                }
+            }, token);
         }
+
         IsRunning = true;
     }
 
     public void Stop()
     {
-        _cts.Cancel(); 
-        _cts.Dispose();
-        IsRunning = false;
-    }
-
-    public void Tick()
-    {
         if (!IsRunning) return;
 
-    //    _logic.Step(PlayfieldWidth, PlayfieldHeight);
+        _cts?.Cancel();
+        _cts?.Dispose();
+        _cts = null;
 
-       for (int i = 0; i < _modelBalls.Count; i++)
-            Balls[i].UpdateFrom(_modelBalls[i]);
-   }
+        IsRunning = false;
+    }
 }

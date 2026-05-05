@@ -78,6 +78,9 @@ namespace Logic
             //}
 
         }
+        
+        
+        /*
         public async Task MoveBallAsync(CancellationToken token, IBall ball, double areaWidth, double areaHeight)
         {
             {
@@ -94,6 +97,17 @@ namespace Logic
                     int delay = Math.Max(0, 16 - (int)stopwach.Elapsed.Milliseconds);
                     await Task.Delay(delay, token);
                 }
+            }
+        }
+        */
+        
+        public void MoveBallOneStep(IBall ball, double areaWidth, double areaHeight)
+        {
+            checkCollisonsWithWalls(ball, areaWidth, areaHeight);
+            if (areaWidth <= 0 || areaHeight <= 0) return;
+            lock (_lock)
+            {
+                CheckBallsCollisions(ball);
             }
         }
 
