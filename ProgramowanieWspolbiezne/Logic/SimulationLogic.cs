@@ -51,8 +51,8 @@ namespace Logic
             }
         }
 
-        public void Step(double areaWidth, double areaHeight)
-        {
+        //public void Step(double areaWidth, double areaHeight)
+        //{
             //if (areaWidth <= 0) throw new ArgumentOutOfRangeException(nameof(areaWidth));
             //if (areaHeight <= 0) throw new ArgumentOutOfRangeException(nameof(areaHeight));
 
@@ -77,7 +77,7 @@ namespace Logic
             //    }
             //}
 
-        }
+       // }
         public async Task MoveBallAsync(CancellationToken token, IBall ball, double areaWidth, double areaHeight)
         {
             {
@@ -86,10 +86,7 @@ namespace Logic
                 {
                     stopwach.Restart();
                     checkCollisonsWithWalls(ball, areaWidth, areaHeight);
-                    lock (_lock)
-                    {
-                        CheckBallsCollisions(ball);
-                    }
+                    CheckBallsCollisions(ball);
                     stopwach.Stop();
                     int delay = Math.Max(0, 16 - (int)stopwach.Elapsed.Milliseconds);
                     await Task.Delay(delay, token);
@@ -100,6 +97,8 @@ namespace Logic
 
         public void checkCollisonsWithWalls(IBall ball, double areaWidth, double areaHeight)
         {
+            if (areaWidth <= 0) throw new ArgumentOutOfRangeException(nameof(areaWidth));
+            if (areaHeight <= 0) throw new ArgumentOutOfRangeException(nameof(areaHeight));
             double ballRadious = ball.Diameter / 2;
             double newPositionX = ball.Position.X + ball.Velocity.X;
             double newPositionY = ball.Position.Y + ball.Velocity.Y;
@@ -136,14 +135,14 @@ namespace Logic
                 ball.Position.Y = newPositionY;
             }
         }
-        private static double DistanceBetweenBallsCenters(IBall b1, IBall b2)
+        public static double DistanceBetweenBallsCenters(IBall b1, IBall b2)
         {
             double dx = b1.Position.X - b2.Position.X;
             double dy = b1.Position.Y - b2.Position.Y;
             return Math.Sqrt(dx * dx + dy * dy);
         }
 
-        private static double SumOfBallsRadiuses(IBall b1, IBall b2)
+        public static double SumOfBallsRadiuses(IBall b1, IBall b2)
         {
             return 0.5 * (b1.Diameter + b2.Diameter);
         }
@@ -154,7 +153,7 @@ namespace Logic
 
             return onlyOverlap ? distance < sumOfRadiuses : distance <= sumOfRadiuses;
         }
-        private static void SeparateBalls(IBall b1, IBall b2)
+        public static void SeparateBalls(IBall b1, IBall b2)
         {
             double distance = DistanceBetweenBallsCenters(b1, b2);
             double minDistance = SumOfBallsRadiuses(b1, b2);
@@ -188,18 +187,20 @@ namespace Logic
             int nmbrOfBalls = balls.Count;
             for (int i = 0; i < nmbrOfBalls; i++)
             {
-                if (balls[i].Id > ball.Id) 
+                if (balls[i].Id > ball.Id)
                 {
-                    if (CheckBallsCollision(ball, balls[i], true))
+                    lock (_lock)
                     {
-                        SeparateBalls(ball, balls[i]);
-                    }
-                     if (CheckBallsCollision(ball, balls[i], false))
-                    {
-                        ball.Collide(balls[i]);
+                        if (CheckBallsCollision(ball, balls[i], true))
+                        {
+                            SeparateBalls(ball, balls[i]);
+                        }
+                        if (CheckBallsCollision(ball, balls[i], false))
+                        {
+                            ball.Collide(balls[i]);
+                        }
                     }
                 }
-                
             }
         }
         public void Clear()

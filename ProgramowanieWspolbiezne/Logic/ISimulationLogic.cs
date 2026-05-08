@@ -9,7 +9,9 @@ namespace Logic
 
         void Initialize(int ballsCount, double areaWidth, double areaHeight);
 
-        void Step(double areaWidth, double areaHeight);
+        //void Step(double areaWidth, double areaHeight);
+
+        public void checkCollisonsWithWalls(IBall ball, double areaWidth, double areaHeight);
 
         public Task MoveBallAsync(CancellationToken token, IBall ball, double areaWidth, double areaHeight);
         void Clear();

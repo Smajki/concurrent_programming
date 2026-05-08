@@ -27,7 +27,7 @@ namespace LogicTest
             double oldX = ball.Position.X;
             double oldY = ball.Position.Y;
 
-            logic.Step(width, height);
+            logic.checkCollisonsWithWalls(ball,width, height);
 
             Assert.AreNotEqual(oldX, ball.Position.X);
             Assert.AreNotEqual(oldY, ball.Position.Y);
@@ -61,7 +61,10 @@ namespace LogicTest
             repo.Add(ball3);
             repo.Add(ball4);
 
-            logic.Step(width, height);
+            logic.checkCollisonsWithWalls(ball, width, height);
+            logic.checkCollisonsWithWalls(ball2, width, height);
+            logic.checkCollisonsWithWalls(ball3, width, height);
+            logic.checkCollisonsWithWalls(ball4, width, height);
 
             Assert.IsTrue(ball.Velocity.X > 0, "Kulka nie powinna odwrócić velocity po uderzeniu.");
             Assert.IsTrue(ball2.Velocity.X < 0, "Kulka powinna odwrócić prędkość po dotraciu do granicy obszaru.");
@@ -92,7 +95,10 @@ namespace LogicTest
             repo.Add(ball2);
             repo.Add(ball3);
 
-            logic.Step(width, height);
+            logic.checkCollisonsWithWalls(ball, width, height);
+            logic.checkCollisonsWithWalls(ball2, width, height);
+            logic.checkCollisonsWithWalls(ball3, width, height);
+
             Assert.IsTrue(ball.Velocity.X > 0, "Kulka powinna odwrócić prędkość po dotraciu do granicy obszaru.");
             Assert.IsTrue(ball2.Velocity.X > 0, "Kulka powinna odwrócić prędkość po dotraciu do granicy obszaru.");
             Assert.IsTrue(ball3.Velocity.X < 0, "Kulka nie powinna odwrócić prędkość po dotraciu do granicy obszaru..");
@@ -124,7 +130,10 @@ namespace LogicTest
             repo.Add(ball3);
             repo.Add(ball4);
 
-            logic.Step(width, height);
+            logic.checkCollisonsWithWalls(ball, width, height);
+            logic.checkCollisonsWithWalls(ball2, width, height);
+            logic.checkCollisonsWithWalls(ball3, width, height);
+            logic.checkCollisonsWithWalls(ball4, width, height);
 
             Assert.IsTrue(ball.Velocity.Y > 0, "Kulka powinna odwrócić velocity po uderzeniu.");
             Assert.IsTrue(ball2.Velocity.Y > 0, "Kulka powinna odwrócić prędkość po dotraciu do granicy obszaru.");
@@ -159,7 +168,9 @@ namespace LogicTest
             repo.Add(ball2);
             repo.Add(ball3);
 
-            logic.Step(width, height);
+            logic.checkCollisonsWithWalls(ball, width, height);
+            logic.checkCollisonsWithWalls(ball2, width, height);
+            logic.checkCollisonsWithWalls(ball3, width, height);
 
             Assert.IsTrue(ball.Velocity.Y< 0, "Kulka powinna odwrócić velocity po uderzeniu.");
             Assert.IsTrue(ball2.Velocity.Y > 0, "Kulka nie powinna odwrócić prędkość po dotraciu do granicy obszaru..");
@@ -172,11 +183,12 @@ namespace LogicTest
 
         }
         [TestMethod]
-        public void stepMethodExceptionTest()
+        public void checkCollisonsWithWallsMethodExceptionTest()
         {
             SimulationLogic sl = new SimulationLogic(new BallRepository());
-            Assert.Throws<ArgumentOutOfRangeException>(() => sl.Step(-1,5));
-            Assert.Throws<ArgumentOutOfRangeException>(() => sl.Step(5, -5));
+            IBall ball = new Ball(0,0,1,1,1);
+            Assert.Throws<ArgumentOutOfRangeException>(() => sl.checkCollisonsWithWalls(ball,- 1,5));
+            Assert.Throws<ArgumentOutOfRangeException>(() => sl.checkCollisonsWithWalls(ball, 5, -5));
 
         }
         [TestMethod]
@@ -190,6 +202,44 @@ namespace LogicTest
             int ballsNumber = 2;
             sl.Initialize(ballsNumber, 20, 25);
             Assert.HasCount(ballsNumber, sl.Balls);
+        }
+        [TestMethod]
+        public void separteBallsTest()
+        {
+            double diameter = 10;
+            double positionX = 19;
+            double positionY = 10;
+            //środki kulek pokrywją sie
+            IBall ball = new Ball(positionX: positionX, positionY: positionY, velocityX: 0, velocityY: -4, diameter: diameter);
+            IBall ball2 = new Ball(positionX: positionX, positionY: positionY, velocityX: 0, velocityY: 3, diameter: diameter);
+            SimulationLogic.SeparateBalls(ball, ball2);
+            Assert.AreNotEqual(ball.Position.X, ball2.Position.X);
+            
+            //kulki częściowo się pokrywają
+            ball.Position = new Vector(positionX, positionY);
+            ball2.Position = new Vector(positionX - 0.5*diameter, positionY - 0.5 * diameter);
+            double distance = SimulationLogic.DistanceBetweenBallsCenters(ball, ball2);
+            double minDistance = SimulationLogic.SumOfBallsRadiuses(ball, ball2);
+            Assert.IsLessThan(minDistance, distance);
+            SimulationLogic.SeparateBalls(ball, ball2);
+            double distanceAfetr = SimulationLogic.DistanceBetweenBallsCenters(ball, ball2);
+            Assert.IsGreaterThanOrEqualTo(distanceAfetr, minDistance);
+            
+            //kulki się nie pokrywają - nic nie powinno się zmienić
+            ball.Position = new Vector(positionX, positionY);
+            double positionX2 = positionX + 2 * diameter;
+            double positionY2 = positionY + 2 * diameter;
+            ball2.Position = new Vector(positionX2, positionY2);
+            Assert.AreEqual(positionX, ball.Position.X);
+            Assert.AreEqual(positionY, ball.Position.Y);
+            Assert.AreEqual(positionX2, ball2.Position.X);
+            Assert.AreEqual(positionY2, ball2.Position.Y);
+            SimulationLogic.SeparateBalls(ball, ball2);
+            Assert.AreEqual(positionX, ball.Position.X);
+            Assert.AreEqual(positionY, ball.Position.Y);
+            Assert.AreEqual(positionX2, ball2.Position.X);
+            Assert.AreEqual(positionY2, ball2.Position.Y);
+
         }
     }
         
