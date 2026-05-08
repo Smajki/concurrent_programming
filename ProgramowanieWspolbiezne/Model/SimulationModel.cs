@@ -1,16 +1,17 @@
 ﻿using Data;
 using Logic;
+using Model;
 using System.Collections.ObjectModel;
 
 public sealed class SimulationModel : Base
 {
     private readonly ISimulationLogic _logic;
+    private readonly IUiTimer _uiTimer;
 
     public double PlayfieldWidth { get; } = 730;
     public double PlayfieldHeight { get; } = 430;
 
-    private CancellationTokenSource _cts;
-
+    private CancellationTokenSource? _cts;
 
     public ObservableCollection<BallExtended> Balls { get; } = new();
 
@@ -30,10 +31,10 @@ public sealed class SimulationModel : Base
         private set => SetField(ref _isRunning, value);
     }
 
-    public SimulationModel(ISimulationLogic logic)
+    public SimulationModel(ISimulationLogic logic, IUiTimer uiTimer)
     {
         _logic = logic;
-
+        _uiTimer = uiTimer;
     }
 
     public void Start()
@@ -50,8 +51,10 @@ public sealed class SimulationModel : Base
             vm.UpdateFrom(ball);
             Balls.Add(vm);
         }
+
         _cts = new CancellationTokenSource();
         CancellationToken token = _cts.Token;
+
         foreach (var ball in _modelBalls)
         {
             _ = Task.Run(() =>
@@ -59,13 +62,20 @@ public sealed class SimulationModel : Base
                 token
             );
         }
+
         IsRunning = true;
+
+        _uiTimer.Start(TimeSpan.FromMilliseconds(16), Tick);
     }
 
     public void Stop()
     {
-        _cts.Cancel(); 
-        _cts.Dispose();
+        _uiTimer.Stop();
+
+        _cts?.Cancel();
+        _cts?.Dispose();
+        _cts = null;
+
         IsRunning = false;
     }
 
@@ -75,7 +85,7 @@ public sealed class SimulationModel : Base
 
     //    _logic.Step(PlayfieldWidth, PlayfieldHeight);
 
-       for (int i = 0; i < _modelBalls.Count; i++)
+        for (int i = 0; i < _modelBalls.Count; i++)
             Balls[i].UpdateFrom(_modelBalls[i]);
-   }
+    }
 }

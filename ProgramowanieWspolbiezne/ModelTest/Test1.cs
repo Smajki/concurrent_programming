@@ -1,5 +1,6 @@
 ﻿using Data;
 using Logic;
+using Model;
 
 [TestClass]
 public sealed class SimulationModelTests
@@ -9,7 +10,7 @@ public sealed class SimulationModelTests
     {
         IBallRepository repo = new BallRepository();
         ISimulationLogic logic = new SimulationLogic(repo);
-        var model = new SimulationModel(logic);
+        var model = new SimulationModel(logic, new FakeUiTimer());
 
         model.BallsCount = 3;
         model.Start();
@@ -24,7 +25,7 @@ public sealed class SimulationModelTests
     {
         IBallRepository repo = new BallRepository();
         ISimulationLogic logic = new SimulationLogic(repo);
-        var model = new SimulationModel(logic);
+        var model = new SimulationModel(logic, new FakeUiTimer());
 
         model.BallsCount = 0;
         model.Start();
@@ -36,7 +37,7 @@ public sealed class SimulationModelTests
     {
         IBallRepository repo = new BallRepository();
         ISimulationLogic logic = new SimulationLogic(repo);
-        var model = new SimulationModel(logic);
+        var model = new SimulationModel(logic, new FakeUiTimer());
 
         var changed = new List<string>();
         model.PropertyChanged += (_, e) => changed.Add(e.PropertyName!);
@@ -51,7 +52,7 @@ public sealed class SimulationModelTests
     {
         IBallRepository repo = new BallRepository();
         ISimulationLogic logic = new SimulationLogic(repo);
-        var model = new SimulationModel(logic);
+        var model = new SimulationModel(logic, new FakeUiTimer());
 
         model.Start();
         model.Stop();
@@ -65,36 +66,36 @@ public sealed class SimulationModelTests
     {
         IBallRepository repo = new BallRepository();
         ISimulationLogic logic = new SimulationLogic(repo);
-        var model = new SimulationModel(logic);
+        var model = new SimulationModel(logic, new FakeUiTimer());
         // brak Start()
         model.Tick();
         Assert.IsEmpty(model.Balls);
     }
 
-    [TestMethod]
-    public void TickUpdatesBallPositions()
-    {
-        IBallRepository repo = new BallRepository();
-        ISimulationLogic logic = new SimulationLogic(repo);
-        var model = new SimulationModel(logic);
+    //[TestMethod]
+    //public void TickUpdatesBallPositions()
+    //{
+    //    IBallRepository repo = new BallRepository();
+    //    ISimulationLogic logic = new SimulationLogic(repo);
+    //    var model = new SimulationModel(logic, new FakeUiTimer());
 
-        model.BallsCount = 1;
-        model.Start();
-        double oldX = model.Balls[0].X;
-        double oldY = model.Balls[0].Y;
+    //    model.BallsCount = 1;
+    //    model.Start();
+    //    double oldX = model.Balls[0].X;
+    //    double oldY = model.Balls[0].Y;
 
-        model.Tick();
+    //    model.Tick();
 
-        Assert.AreNotEqual(oldX, model.Balls[0].X);
-        Assert.AreNotEqual(oldY, model.Balls[0].Y);
-    }
+    //    Assert.AreNotEqual(oldX, model.Balls[0].X);
+    //    Assert.AreNotEqual(oldY, model.Balls[0].Y);
+    //}
 
     [TestMethod]
     public void TickUpdatesAllBalls()
     {
         IBallRepository repo = new BallRepository();
         ISimulationLogic logic = new SimulationLogic(repo);
-        var model = new SimulationModel(logic);
+        var model = new SimulationModel(logic, new FakeUiTimer());
 
         model.BallsCount = 3;
         model.Start();
@@ -109,4 +110,23 @@ public sealed class SimulationModelTests
             Assert.AreNotEqual(oldPositions[i].Y, model.Balls[i].Y);
         }
     }
+
+
+    internal sealed class FakeUiTimer : IUiTimer
+    {
+        public bool Started { get; private set; }
+        public bool Stopped { get; private set; }
+
+        public void Start(TimeSpan interval, Action tick)
+        {
+            Started = true;
+        }
+
+        public void Stop()
+        {
+            Stopped = true;
+        }
+    }
+
+
 }

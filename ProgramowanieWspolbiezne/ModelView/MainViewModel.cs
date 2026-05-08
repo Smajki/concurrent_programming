@@ -1,5 +1,6 @@
 using Logic;
 using ModelView;
+using Model;
 
 public sealed class MainViewModel : Base
 {
@@ -8,9 +9,9 @@ public sealed class MainViewModel : Base
     public RelayCommand StartCommand { get; }
     public RelayCommand StopCommand { get; }
 
-    public MainViewModel(ISimulationLogic logic)
+    public MainViewModel(ISimulationLogic logic, IUiTimer uiTimer)
     {
-        Model = new SimulationModel(logic);
+        Model = new SimulationModel(logic, uiTimer);
         StartCommand = new RelayCommand(Model.Start, () => !Model.IsRunning);
         StopCommand = new RelayCommand(Model.Stop, () => Model.IsRunning);
         Model.PropertyChanged += (_, e) =>
@@ -23,8 +24,8 @@ public sealed class MainViewModel : Base
         };
     }
 
-    public void Tick()
-    {
-        Model.Tick();
-    }
+    //public void Tick()
+    //{
+    //    Model.Tick();
+    //}
 }
