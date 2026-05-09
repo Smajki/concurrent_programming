@@ -1,32 +1,30 @@
-﻿/*
-using Data;
+﻿using Data;
 using Logic;
 using Model;
-using ModelView;
 
-
+namespace ModelViewTest;
 
 [TestClass]
 public sealed class MainViewModelTests
 {
-    private MainViewModel CreateVM()
+    private static MainViewModel CreateVM(FakeSimulationLogic logic)
     {
-        IBallRepository repo = new BallRepository();
-        ISimulationLogic logic = new SimulationLogic(repo);
-        return new MainViewModel(logic, new FakeUiTimer());
+        return new MainViewModel(logic, new ImmediateDispatcher());
     }
 
     [TestMethod]
     public void StartCommandExecutesAndStartsSimulation()
     {
-        var vm = CreateVM();
-
+        var logic = new FakeSimulationLogic();
+        var vm = CreateVM(logic);
+        
         Assert.IsTrue(vm.StartCommand.CanExecute(null));
         Assert.IsFalse(vm.StopCommand.CanExecute(null));
 
         vm.StartCommand.Execute(null);
 
         Assert.IsTrue(vm.Model.IsRunning);
+        
         Assert.IsFalse(vm.StartCommand.CanExecute(null));
         Assert.IsTrue(vm.StopCommand.CanExecute(null));
     }
@@ -34,7 +32,8 @@ public sealed class MainViewModelTests
     [TestMethod]
     public void StopCommandExecutesAndStopsSimulation()
     {
-        var vm = CreateVM();
+        var logic = new FakeSimulationLogic();
+        var vm = CreateVM(logic);
 
         vm.StartCommand.Execute(null);
         Assert.IsTrue(vm.Model.IsRunning);
@@ -47,47 +46,53 @@ public sealed class MainViewModelTests
     }
 
     [TestMethod]
-    public void StartCommandRaisesCanExecuteChangedWhenIsRunningChanges()
+    public void CommandsRaiseCanExecuteChangedWhenIsRunningChanges()
     {
-        var vm = CreateVM();
+        var logic = new FakeSimulationLogic();
+        var vm = CreateVM(logic);
+
         bool startChanged = false;
         bool stopChanged = false;
+
         vm.StartCommand.CanExecuteChanged += (_, __) => startChanged = true;
         vm.StopCommand.CanExecuteChanged += (_, __) => stopChanged = true;
+
         vm.StartCommand.Execute(null);
+
         Assert.IsTrue(startChanged);
         Assert.IsTrue(stopChanged);
     }
 
-    //[TestMethod]
-    //public void TickDelegatesToModelTick()
-    //{
-    //    var vm = CreateVM();
-    //    vm.Model.BallsCount = 1;
-    //    vm.StartCommand.Execute(null);
-    //    double oldX = vm.Model.Balls[0].X;
-    //    double oldY = vm.Model.Balls[0].Y;
-    //    vm.Tick();
-    //    Assert.AreNotEqual(oldX, vm.Model.Balls[0].X);
-    //    Assert.AreNotEqual(oldY, vm.Model.Balls[0].Y);
-    //}
-    //[TestMethod]
-    //public void ConstructorRelayCommandThrowsWhenExecuteIsNull()
-    //{
-    //    Assert.Throws<ArgumentNullException>(() => new RelayCommand(null!));
-    //}
-
-    //[TestMethod]
-    //public void CanExecuteRelayCommandReturnsTrue_WhenCanExecuteIsNull()
-    //{
-    //    var cmd = new RelayCommand(() => { });
-    //    Assert.IsTrue(cmd.CanExecute(null));
-    //}
-
-    internal sealed class FakeUiTimer : IUiDispatcher
+    internal sealed class ImmediateDispatcher : IUiDispatcher
     {
-        public void Start(TimeSpan interval, Action tick) { }
-        public void Stop() { }
+        public void Post(Action action) => action();
+    }
+
+    internal sealed class FakeSimulationLogic : ISimulationLogic
+    {
+        public event EventHandler<BallStateChangedEventArgs>? BallStateChanged;
+
+        private readonly List<IBall> _balls = new();
+        public IReadOnlyList<IBall> Balls => _balls;
+
+        public void Initialize(int ballsCount, double areaWidth, double areaHeight)
+        {
+            _balls.Clear();
+            int count = Math.Max(1, ballsCount);
+
+            for (int i = 0; i < count; i++)
+            {
+                var b = new Ball(100, 100, 0, 0, 25);
+                b.Id = i;
+                _balls.Add(b);
+            }
+        }
+
+        public void checkCollisonsWithWalls(IBall ball, double areaWidth, double areaHeight) { }
+
+        public Task MoveBallAsync(CancellationToken token, IBall ball, double areaWidth, double areaHeight)
+            => Task.CompletedTask;
+
+        public void Clear() => _balls.Clear();
     }
 }
-*/
