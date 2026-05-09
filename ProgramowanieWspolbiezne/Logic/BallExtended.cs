@@ -32,5 +32,11 @@ namespace Logic
             Y = ball.Position.Y - ball.Diameter / 2;
             Diameter = ball.Diameter;
         }
+        public void UpdateFromState(double centerX, double centerY, double diameter)
+        {
+            X = centerX - diameter / 2;
+            Y = centerY - diameter / 2;
+            Diameter = diameter;
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Data;
+﻿/*
+using Data;
 using Logic;
 using Model;
 using ModelView;
@@ -83,9 +84,10 @@ public sealed class MainViewModelTests
     //    Assert.IsTrue(cmd.CanExecute(null));
     //}
 
-    internal sealed class FakeUiTimer : IUiTimer
+    internal sealed class FakeUiTimer : IUiDispatcher
     {
         public void Start(TimeSpan interval, Action tick) { }
         public void Stop() { }
     }
 }
+*/

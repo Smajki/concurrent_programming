@@ -6,8 +6,9 @@ using System.Collections.ObjectModel;
 public sealed class SimulationModel : Base
 {
     private readonly ISimulationLogic _logic;
-    private readonly IUiTimer _uiTimer;
 
+    private readonly IUiDispatcher _uiDispatcher;
+    private readonly Dictionary<int, BallExtended> _byId = new();
     public double PlayfieldWidth { get; } = 730;
     public double PlayfieldHeight { get; } = 430;
 
@@ -15,7 +16,6 @@ public sealed class SimulationModel : Base
 
     public ObservableCollection<BallExtended> Balls { get; } = new();
 
-    private IReadOnlyList<IBall> _modelBalls = Array.Empty<IBall>();
 
     private int _ballsCount = 10;
     public int BallsCount
@@ -31,10 +31,10 @@ public sealed class SimulationModel : Base
         private set => SetField(ref _isRunning, value);
     }
 
-    public SimulationModel(ISimulationLogic logic, IUiTimer uiTimer)
+    public SimulationModel(ISimulationLogic logic, IUiDispatcher uiDispatcher)
     {
         _logic = logic;
-        _uiTimer = uiTimer;
+        _uiDispatcher = uiDispatcher;
     }
 
     public void Start()
@@ -42,35 +42,35 @@ public sealed class SimulationModel : Base
         int count = Math.Max(1, BallsCount);
 
         _logic.Initialize(count, PlayfieldWidth, PlayfieldHeight);
-        _modelBalls = _logic.Balls;
 
         Balls.Clear();
-        foreach (var ball in _modelBalls)
+        _byId.Clear();
+
+        foreach (var ball in _logic.Balls)
         {
             var vm = new BallExtended();
             vm.UpdateFrom(ball);
             Balls.Add(vm);
+
+            _byId[(int)ball.Id] = vm;
         }
+
+        _logic.BallStateChanged += OnBallStateChanged;
 
         _cts = new CancellationTokenSource();
         CancellationToken token = _cts.Token;
 
-        foreach (var ball in _modelBalls)
+        foreach (var ball in _logic.Balls)
         {
-            _ = Task.Run(() =>
-                _logic.MoveBallAsync(token, ball, PlayfieldWidth, PlayfieldHeight),
-                token
-            );
+            _ = Task.Run(() => _logic.MoveBallAsync(token, ball, PlayfieldWidth, PlayfieldHeight), token);
         }
 
         IsRunning = true;
-
-        _uiTimer.Start(TimeSpan.FromMilliseconds(16), Tick);
     }
 
     public void Stop()
     {
-        _uiTimer.Stop();
+        _logic.BallStateChanged -= OnBallStateChanged;
 
         _cts?.Cancel();
         _cts?.Dispose();
@@ -79,13 +79,17 @@ public sealed class SimulationModel : Base
         IsRunning = false;
     }
 
-    public void Tick()
+    private void OnBallStateChanged(object? sender, BallStateChangedEventArgs e)
     {
         if (!IsRunning) return;
 
-    //    _logic.Step(PlayfieldWidth, PlayfieldHeight);
-
-        for (int i = 0; i < _modelBalls.Count; i++)
-            Balls[i].UpdateFrom(_modelBalls[i]);
+        if (_byId.TryGetValue(e.Id, out var vm))
+        {
+            _uiDispatcher.Post(() =>
+            {
+                vm.UpdateFromState(e.CenterX, e.CenterY, e.Diameter);
+            });
+        }
     }
+
 }

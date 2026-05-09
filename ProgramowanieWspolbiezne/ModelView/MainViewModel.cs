@@ -9,9 +9,9 @@ public sealed class MainViewModel : Base
     public RelayCommand StartCommand { get; }
     public RelayCommand StopCommand { get; }
 
-    public MainViewModel(ISimulationLogic logic, IUiTimer uiTimer)
+    public MainViewModel(ISimulationLogic logic, IUiDispatcher uiDispatcher)
     {
-        Model = new SimulationModel(logic, uiTimer);
+        Model = new SimulationModel(logic, uiDispatcher);
         StartCommand = new RelayCommand(Model.Start, () => !Model.IsRunning);
         StopCommand = new RelayCommand(Model.Stop, () => Model.IsRunning);
         Model.PropertyChanged += (_, e) =>
@@ -24,8 +24,4 @@ public sealed class MainViewModel : Base
         };
     }
 
-    //public void Tick()
-    //{
-    //    Model.Tick();
-    //}
 }

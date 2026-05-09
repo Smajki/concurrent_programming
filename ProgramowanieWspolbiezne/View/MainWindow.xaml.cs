@@ -16,8 +16,8 @@ namespace View
             ISimulationLogic logic = new SimulationLogic(repository);
 
 
-            var uiTimer = new DispatcherUiTimer();
-            DataContext = new MainViewModel(logic, uiTimer);
+            var uiDispatcher = new WpfUiDispatcher();
+            DataContext = new MainViewModel(logic, uiDispatcher);
 
         }
     }

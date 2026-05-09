@@ -8,6 +8,8 @@ namespace Logic
 {
     public sealed class SimulationLogic : ISimulationLogic
     {
+        public event EventHandler<BallStateChangedEventArgs>? BallStateChanged;
+
         private readonly IBallRepository _repository;
         private readonly Random _random;
         private readonly object _lock = new object();
@@ -51,46 +53,26 @@ namespace Logic
             }
         }
 
-        //public void Step(double areaWidth, double areaHeight)
-        //{
-            //if (areaWidth <= 0) throw new ArgumentOutOfRangeException(nameof(areaWidth));
-            //if (areaHeight <= 0) throw new ArgumentOutOfRangeException(nameof(areaHeight));
-
-            //List<IBall> balls = _repository.GetAll().ToList();
-            ////foreach (var ball in _repository.GetAll())
-            //int nmbrOfBalls = balls.Count;
-            //for (int i = 0; i < nmbrOfBalls; i++)
-            //{
-            //    IBall ball = balls[i];
-            //    checkCollisonsWithWalls(ball, areaWidth, areaHeight);
-            //    for (int j = i + 1; j < nmbrOfBalls; j++)
-            //    {
-            //        if (CheckBallsCollision(ball, balls[j], true))
-            //        {
-            //            SeparateBalls(ball, balls[j]);
-            //        }
-            //        if (CheckBallsCollision(ball, balls[j], false))
-            //        {
-            //            ball.Collide(balls[j]);
-            //        }
-
-            //    }
-            //}
-
-       // }
         public async Task MoveBallAsync(CancellationToken token, IBall ball, double areaWidth, double areaHeight)
         {
+            Stopwatch stopwach = new Stopwatch();
+            while (!token.IsCancellationRequested)
             {
-                Stopwatch stopwach = new Stopwatch();
-                while (!token.IsCancellationRequested)
-                {
-                    stopwach.Restart();
-                    checkCollisonsWithWalls(ball, areaWidth, areaHeight);
-                    CheckBallsCollisions(ball);
-                    stopwach.Stop();
-                    int delay = Math.Max(0, 16 - (int)stopwach.Elapsed.Milliseconds);
-                    await Task.Delay(delay, token);
-                }
+                stopwach.Restart();
+
+                checkCollisonsWithWalls(ball, areaWidth, areaHeight);
+                CheckBallsCollisions(ball);
+
+                int id = (int)ball.Id;
+                double x = ball.Position.X;
+                double y = ball.Position.Y;
+                double d = ball.Diameter;
+
+                BallStateChanged?.Invoke(this, new BallStateChangedEventArgs(id, x, y, d));
+
+                stopwach.Stop();
+                int delay = Math.Max(0, 16 - (int)stopwach.Elapsed.Milliseconds);
+                await Task.Delay(delay, token);
             }
         }
 
