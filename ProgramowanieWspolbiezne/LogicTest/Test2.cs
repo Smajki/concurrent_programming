@@ -38,4 +38,31 @@ namespace LogicTest
             Assert.IsEmpty(changed);
         }
     }
+
+    [TestClass]
+    public sealed class SimulationLogicCheckBallsCollisionsMinimalTests
+    {
+        [TestMethod]
+        public void CheckBallsCollisions_SeparatesOverlappingBalls()
+        {
+            // robimy overlap kul
+            var repo = new BallRepository();
+            var logic = new SimulationLogic(repo);
+
+            var b0 = new Ball(0, 0, 0, 0, 10) { Id = 0 };
+            var b1 = new Ball(9, 0, 0, 0, 10) { Id = 1 };
+
+            repo.Add(b0);
+            repo.Add(b1);
+
+            double minDist = SimulationLogic.SumOfBallsRadiuses(b0, b1);
+            Assert.IsTrue(SimulationLogic.DistanceBetweenBallsCenters(b0, b1) < minDist);
+
+            logic.CheckBallsCollisions(b0);
+
+            // po wywołaniu nie powinno być overlapu
+            Assert.IsTrue(SimulationLogic.DistanceBetweenBallsCenters(b0, b1) >= minDist);
+        }
+    }
+
 }
