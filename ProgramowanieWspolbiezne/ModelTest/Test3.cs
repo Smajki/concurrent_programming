@@ -31,6 +31,9 @@ public sealed class SimulationModelTests_RealLogic_Events
 
         Assert.AreNotEqual(oldX, model.Balls[0].X);
         Assert.AreNotEqual(oldY, model.Balls[0].Y);
+
+        model.Stop();
+        Assert.IsFalse(model.IsRunning);
     }
 
     [TestMethod]

@@ -62,6 +62,18 @@ public sealed class MainViewModelTests
         Assert.IsTrue(startChanged);
         Assert.IsTrue(stopChanged);
     }
+    [TestMethod]
+    public void ConstructorRelayCommandThrowsWhenExecuteIsNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => new ModelView.RelayCommand(null!));
+    }
+
+    [TestMethod]
+    public void CanExecuteRelayCommandReturnsTrue_WhenCanExecuteIsNull()
+    {
+        var cmd = new ModelView.RelayCommand(() => { });
+        Assert.IsTrue(cmd.CanExecute(null));
+    }
 
     internal sealed class ImmediateDispatcher : IUiDispatcher
     {
