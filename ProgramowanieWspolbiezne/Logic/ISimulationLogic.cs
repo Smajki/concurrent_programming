@@ -12,5 +12,6 @@ namespace Logic
         void checkCollisonsWithWalls(IBall ball, double areaWidth, double areaHeight);
         Task MoveBallAsync(CancellationToken token, IBall ball, double areaWidth, double areaHeight);
         void Clear();
+        public ValueTask Dispose();
     }
 }

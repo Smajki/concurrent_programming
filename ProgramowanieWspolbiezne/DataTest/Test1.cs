@@ -21,6 +21,13 @@ namespace Data.Test
             Assert.AreEqual(initVelocityX, b.Velocity.X);
             Assert.AreEqual(initVelocityY, b.Velocity.Y);
             Assert.AreEqual(initDiamater, b.Diameter);
+            String s=b.ToString();
+            Assert.Contains(initPositionX.ToString(),s);
+            Assert.Contains(initPositionY.ToString(), s);
+            Assert.Contains(initVelocityX.ToString(), s);
+            Assert.Contains(initVelocityY.ToString(), s);
+            Assert.Contains(initDiamater.ToString(), s);
+            Assert.Contains(mass.ToString(), s);
             b.Position.X = initPositionX + initVelocityX;
             b.Position.Y = initPositionY + initVelocityY;
             Assert.AreEqual(initPositionX + initVelocityX, b.Position.X);

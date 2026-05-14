@@ -71,6 +71,7 @@ public sealed class SimulationModel : Base
     public void Stop()
     {
         _logic.BallStateChanged -= OnBallStateChanged;
+        _ = Task.Run(() => _logic.Dispose());
 
         _cts?.Cancel();
         _cts?.Dispose();

@@ -13,7 +13,8 @@ namespace Logic
         private readonly IBallRepository _repository;
         private readonly Random _random;
         private readonly object _lock = new object();
-
+        private Logger logger;
+        private string _logsFileName = "logs.txt";
 
         public SimulationLogic(IBallRepository repository, Random? random = null)
         {
@@ -51,6 +52,9 @@ namespace Logic
                 ball.Id = i;
                 _repository.Add(ball);
             }
+
+              logger = new Logger(_logsFileName);
+
         }
 
         public async Task MoveBallAsync(CancellationToken token, IBall ball, double areaWidth, double areaHeight)
@@ -180,6 +184,7 @@ namespace Logic
                         if (CheckBallsCollision(ball, balls[i], false))
                         {
                             ball.Collide(balls[i]);
+                            logger.logAsync(DateTime.Now.ToString() + " collision: " + balls[i].ToString() + " and " + ball.ToString());
                         }
                     }
                 }
@@ -201,6 +206,16 @@ namespace Logic
             while (v == 0)
                 v = _random.Next(minInclusive, maxInclusive + 1);
             return v;
+        }
+
+        public void setLogsFileName(string filename)
+        {
+            _logsFileName = filename;
+        }
+
+        public async ValueTask Dispose()
+        {
+            await logger.DisposeAsync();
         }
     }
 }

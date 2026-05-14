@@ -44,5 +44,10 @@
             Velocity = newVelocity;
             other.Velocity = newOtherBallVelocity;
         }
+        public override string ToString()
+        {
+            return $"Ball: pos=({Position.X}, {Position.Y}), v=[{Velocity.X}, {Velocity.Y}], d={Diameter}, m={Mass}, id={Id}";
+        }
+
     }
 }

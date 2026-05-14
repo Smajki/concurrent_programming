@@ -48,6 +48,9 @@ namespace LogicTest
             // robimy overlap kul
             var repo = new BallRepository();
             var logic = new SimulationLogic(repo);
+            string fName = "logicTest.txt";
+            logic.Initialize(0, 10, 10);
+            logic.setLogsFileName(fName);
 
             var b0 = new Ball(0, 0, 0, 0, 10) { Id = 0 };
             var b1 = new Ball(9, 0, 0, 0, 10) { Id = 1 };
@@ -62,6 +65,9 @@ namespace LogicTest
 
             // po wywołaniu nie powinno być overlapu
             Assert.IsTrue(SimulationLogic.DistanceBetweenBallsCenters(b0, b1) >= minDist);
+
+            if (File.Exists("logicTest.txt"))
+                File.Delete("logicTest.txt");
         }
     }
 
