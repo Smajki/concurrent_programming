@@ -45,11 +45,7 @@ namespace Data
                 {
                     await Task.Delay(50, token);
                 }
-                catch (ChannelClosedException)
-                {
-                    break;
-                }
-                catch (OperationCanceledException)
+                catch (Exception)
                 {
                     break;
                 }
