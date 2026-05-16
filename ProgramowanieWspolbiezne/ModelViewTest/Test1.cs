@@ -1,112 +1,123 @@
-﻿//using Data;
-//using Logic;
-//using Model;
+﻿using Data;
+using Logic;
+using Model;
+using ModelView;
 
-//namespace ModelViewTest;
 
-//[TestClass]
-//public sealed class MainViewModelTests
-//{
-//    private static MainViewModel CreateVM(FakeSimulationLogic logic)
-//    {
-//        return new MainViewModel(logic, new ImmediateDispatcher());
-//    }
+namespace ModelViewTest;
 
-//    [TestMethod]
-//    public void StartCommandExecutesAndStartsSimulation()
-//    {
-//        var logic = new FakeSimulationLogic();
-//        var vm = CreateVM(logic);
-        
-//        Assert.IsTrue(vm.StartCommand.CanExecute(null));
-//        Assert.IsFalse(vm.StopCommand.CanExecute(null));
+[TestClass]
+public sealed class MainViewModelTests
+{
+    private static MainViewModel CreateVM(FakeSimulationLogic logic)
+        => new MainViewModel(logic, new ImmediateDispatcher());
 
-//        vm.StartCommand.Execute(null);
+    [TestMethod]
+    public void StartCommandExecutesAndStartsSimulation()
+    {
+        var logic = new FakeSimulationLogic();
+        var vm = CreateVM(logic);
 
-//        Assert.IsTrue(vm.Model.IsRunning);
-        
-//        Assert.IsFalse(vm.StartCommand.CanExecute(null));
-//        Assert.IsTrue(vm.StopCommand.CanExecute(null));
-//    }
+        Assert.IsTrue(vm.StartCommand.CanExecute(null));
+        Assert.IsFalse(vm.StopCommand.CanExecute(null));
 
-//    [TestMethod]
-//    public void StopCommandExecutesAndStopsSimulation()
-//    {
-//        var logic = new FakeSimulationLogic();
-//        var vm = CreateVM(logic);
+        vm.StartCommand.Execute(null);
 
-//        vm.StartCommand.Execute(null);
-//        Assert.IsTrue(vm.Model.IsRunning);
+        Assert.IsTrue(vm.Model.IsRunning);
 
-//        vm.StopCommand.Execute(null);
+        Assert.IsFalse(vm.StartCommand.CanExecute(null));
+        Assert.IsTrue(vm.StopCommand.CanExecute(null));
+    }
 
-//        Assert.IsFalse(vm.Model.IsRunning);
-//        Assert.IsTrue(vm.StartCommand.CanExecute(null));
-//        Assert.IsFalse(vm.StopCommand.CanExecute(null));
-//    }
+    [TestMethod]
+    public void StopCommandExecutesAndStopsSimulation()
+    {
+        var logic = new FakeSimulationLogic();
+        var vm = CreateVM(logic);
 
-//    [TestMethod]
-//    public void CommandsRaiseCanExecuteChangedWhenIsRunningChanges()
-//    {
-//        var logic = new FakeSimulationLogic();
-//        var vm = CreateVM(logic);
+        vm.StartCommand.Execute(null);
+        Assert.IsTrue(vm.Model.IsRunning);
 
-//        bool startChanged = false;
-//        bool stopChanged = false;
+        vm.StopCommand.Execute(null);
 
-//        vm.StartCommand.CanExecuteChanged += (_, __) => startChanged = true;
-//        vm.StopCommand.CanExecuteChanged += (_, __) => stopChanged = true;
+        Assert.IsFalse(vm.Model.IsRunning);
+        Assert.IsTrue(vm.StartCommand.CanExecute(null));
+        Assert.IsFalse(vm.StopCommand.CanExecute(null));
+    }
 
-//        vm.StartCommand.Execute(null);
+    [TestMethod]
+    public void CommandsRaiseCanExecuteChangedWhenIsRunningChanges()
+    {
+        var logic = new FakeSimulationLogic();
+        var vm = CreateVM(logic);
 
-//        Assert.IsTrue(startChanged);
-//        Assert.IsTrue(stopChanged);
-//    }
-//    [TestMethod]
-//    public void ConstructorRelayCommandThrowsWhenExecuteIsNull()
-//    {
-//        Assert.Throws<ArgumentNullException>(() => new ModelView.RelayCommand(null!));
-//    }
+        bool startChanged = false;
+        bool stopChanged = false;
 
-//    [TestMethod]
-//    public void CanExecuteRelayCommandReturnsTrue_WhenCanExecuteIsNull()
-//    {
-//        var cmd = new ModelView.RelayCommand(() => { });
-//        Assert.IsTrue(cmd.CanExecute(null));
-//    }
+        vm.StartCommand.CanExecuteChanged += (_, __) => startChanged = true;
+        vm.StopCommand.CanExecuteChanged += (_, __) => stopChanged = true;
 
-//    internal sealed class ImmediateDispatcher : IUiDispatcher
-//    {
-//        public void Post(Action action) => action();
-//    }
+        vm.StartCommand.Execute(null);
 
-//    internal sealed class FakeSimulationLogic : ISimulationLogic
-//    {
-//        public event EventHandler<BallStateChangedEventArgs>? BallStateChanged;
+        Assert.IsTrue(startChanged);
+        Assert.IsTrue(stopChanged);
+    }
 
-//        private readonly List<IBall> _balls = new();
-//        public IReadOnlyList<IBall> Balls => _balls;
+    [TestMethod]
+    public void RelayCommand_Execute_InvokesAction()
+    {
+        bool executed = false;
+        var cmd = new RelayCommand(() => executed = true);
 
-//        public void Initialize(int ballsCount, double areaWidth, double areaHeight)
-//        {
-//            _balls.Clear();
-//            int count = Math.Max(1, ballsCount);
+        cmd.Execute(null);
 
-//            for (int i = 0; i < count; i++)
-//            {
-//                var b = new Ball(100, 100, 0, 0, 25);
-//                b.Id = i;
-//                _balls.Add(b);
-//            }
-//        }
+        Assert.IsTrue(executed);
+    }
 
-//        public void checkCollisonsWithWalls(IBall ball, double areaWidth, double areaHeight) { }
+    [TestMethod]
+    public void CanExecuteRelayCommandReturnsTrue_WhenCanExecuteIsNull()
+    {
+        var cmd = new RelayCommand(() => { });
+        Assert.IsTrue(cmd.CanExecute(null));
+    }
 
-//        public Task MoveBallAsync(CancellationToken token, IBall ball, double areaWidth, double areaHeight)
-//            => Task.CompletedTask;
+    internal sealed class ImmediateDispatcher : IUiDispatcher
+    {
+        public void Post(Action action) => action();
+    }
 
-//        public void Clear() => _balls.Clear();
+    internal sealed class FakeSimulationLogic : ISimulationLogic
+    {
+        public event EventHandler<BallStateChangedEventArgs>? BallStateChanged;
 
-//        public void Dispose() => ();
-//    }
-//}
+        private readonly List<IBall> _balls = new();
+        public IReadOnlyList<IBall> Balls => _balls;
+
+        public void Initialize(int ballsCount, double areaWidth, double areaHeight)
+        {
+            _balls.Clear();
+            int count = Math.Max(1, ballsCount);
+
+            for (int i = 0; i < count; i++)
+            {
+                var b = new Ball(100, 100, 0, 0, 25);
+                b.Id = i;
+                _balls.Add(b);
+            }
+        }
+
+        public void checkCollisonsWithWalls(IBall ball, double areaWidth, double areaHeight)
+        {
+        }
+
+        public Task MoveBallAsync(CancellationToken token, IBall ball, double areaWidth, double areaHeight)
+            => Task.CompletedTask;
+
+        public void Clear() => _balls.Clear();
+
+        public ValueTask Dispose()
+        {
+            return ValueTask.CompletedTask;
+        }
+    }
+}
