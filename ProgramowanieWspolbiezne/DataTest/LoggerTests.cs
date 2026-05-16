@@ -41,14 +41,6 @@ namespace Data.Test
             string text = File.ReadAllText(fileName);
             Assert.Contains("A", text);
             Assert.Contains("B", text);
-            File.WriteAllText(fileName, string.Empty);
-
-            Logger logger2 = new Logger(fileName);
-            logger2.logAsync("A");
-            logger2.logAsync("B");
-            logger2.logAsync("C");
-            await logger2.DisposeAsync();
-            await Task.Delay(100);
             deleteFile(fileName);
         }
 

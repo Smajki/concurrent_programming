@@ -20,16 +20,16 @@ namespace LogicTest
 
             // bez logowania
             var repoA = new BallRepository();
-            var logicA = new SimulationLogic(repoA, new Random(seed), new NullDiagnosticLogger());
-            logicA.Initialize(ballsCount, width, height);
+            var logicA = new SimulationLogic(repoA, new Random(seed));
+            logicA.Initialize(ballsCount, width, height, new NullDiagnosticLogger());
 
             // z logowaniem do pliku
             string logFile = "logging_impact_test.txt";
             if (File.Exists(logFile)) File.Delete(logFile);
 
             var repoB = new BallRepository();
-            var logicB = new SimulationLogic(repoB, new Random(seed), new Logger(logFile));
-            logicB.Initialize(ballsCount, width, height);
+            var logicB = new SimulationLogic(repoB, new Random(seed));
+            logicB.Initialize(ballsCount, width, height, new Logger(logFile));
 
   
             int steps = 200;

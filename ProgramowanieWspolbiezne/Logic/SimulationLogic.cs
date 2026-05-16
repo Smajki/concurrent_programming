@@ -13,14 +13,14 @@ namespace Logic
         private readonly IBallRepository _repository;
         private readonly Random _random;
         private readonly object _lock = new object();
-        private IDiagnosticLogger logger;
+        private IDiagnosticLogger? logger;
         private string _logsFileName = "logs.txt";
 
-        public SimulationLogic(IBallRepository repository, Random? random = null, IDiagnosticLogger? logger = null)
+        public SimulationLogic(IBallRepository repository, Random? random = null)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _random = random ?? new Random();
-            this.logger = logger ?? new Logger(_logsFileName);
+           
         }
 
         public IReadOnlyList<IBall> Balls
@@ -31,7 +31,7 @@ namespace Logic
             }
         }
 
-        public void Initialize(int ballsCount, double areaWidth, double areaHeight)
+        public void Initialize(int ballsCount, double areaWidth, double areaHeight, IDiagnosticLogger? logger = null)
         {
             if (ballsCount < 0) throw new ArgumentOutOfRangeException(nameof(ballsCount));
             if (areaWidth <= 0) throw new ArgumentOutOfRangeException(nameof(areaWidth));
@@ -54,7 +54,7 @@ namespace Logic
                 _repository.Add(ball);
             }
 
-            //logger = new Logger(_logsFileName);
+            this.logger = logger ?? new Logger(_logsFileName);
 
         }
 

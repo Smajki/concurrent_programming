@@ -93,7 +93,7 @@ public sealed class MainViewModelTests
         private readonly List<IBall> _balls = new();
         public IReadOnlyList<IBall> Balls => _balls;
 
-        public void Initialize(int ballsCount, double areaWidth, double areaHeight)
+        public void Initialize(int ballsCount, double areaWidth, double areaHeight, IDiagnosticLogger? logger = null)
         {
             _balls.Clear();
             int count = Math.Max(1, ballsCount);

@@ -17,7 +17,7 @@ public sealed class ScreenProtection_DispatcherTests
     {
         IBallRepository repo = new BallRepository();
 
-        ISimulationLogic logic = new SimulationLogic(repo, random: new Random(123), logger: new NullDiagnosticLogger());
+        ISimulationLogic logic = new SimulationLogic(repo, random: new Random(123));
 
         var dispatcher = new QueuedDispatcher();
         var model = new SimulationModel(logic, dispatcher);

@@ -120,7 +120,7 @@ public sealed class SimulationModelTests
         private readonly List<IBall> _balls = new();
         public IReadOnlyList<IBall> Balls => _balls;
 
-        public void Initialize(int ballsCount, double areaWidth, double areaHeight)
+        public void Initialize(int ballsCount, double areaWidth, double areaHeight, IDiagnosticLogger? logger)
         {
             _balls.Clear();
 
