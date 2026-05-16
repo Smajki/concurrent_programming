@@ -4,9 +4,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+
 namespace Data
 {
-    public class Logger : IAsyncDisposable
+    public sealed class Logger : IDiagnosticLogger
     {
         private readonly string file_path;
         private readonly Channel<string> channel;
@@ -38,7 +39,7 @@ namespace Data
                 {
                     var line = await channel.Reader.ReadAsync(token);
                     await writer.WriteLineAsync(line);
-                    await writer.FlushAsync(); 
+                    await writer.FlushAsync();
                 }
                 catch (IOException)
                 {

@@ -13,13 +13,14 @@ namespace Logic
         private readonly IBallRepository _repository;
         private readonly Random _random;
         private readonly object _lock = new object();
-        private Logger logger;
+        private IDiagnosticLogger logger;
         private string _logsFileName = "logs.txt";
 
-        public SimulationLogic(IBallRepository repository, Random? random = null)
+        public SimulationLogic(IBallRepository repository, Random? random = null, IDiagnosticLogger? logger = null)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _random = random ?? new Random();
+            this.logger = logger ?? new Logger(_logsFileName);
         }
 
         public IReadOnlyList<IBall> Balls
@@ -53,7 +54,7 @@ namespace Logic
                 _repository.Add(ball);
             }
 
-              logger = new Logger(_logsFileName);
+            //logger = new Logger(_logsFileName);
 
         }
 
@@ -153,7 +154,7 @@ namespace Logic
 
             double overlap = minDistance - distance;
             if (overlap <= 0)
-                return; 
+                return;
 
             double dx = (b1.Position.X - b2.Position.X) / distance;
             double dy = (b1.Position.Y - b2.Position.Y) / distance;
@@ -168,7 +169,7 @@ namespace Logic
         }
 
         public void CheckBallsCollisions(IBall ball)
-            {
+        {
             List<IBall> balls = _repository.GetAll().ToList();
             int nmbrOfBalls = balls.Count;
             for (int i = 0; i < nmbrOfBalls; i++)
