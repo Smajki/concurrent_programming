@@ -138,7 +138,7 @@ public sealed class SimulationModelTests
         {
         }
 
-        public Task MoveBallAsync(CancellationToken token, IBall ball, double areaWidth, double areaHeight)
+        public Task MoveBallAsync(CancellationToken token, IBall ball, double areaWidth, double areaHeight, Func<Task> waitForTick)
         {
             return Task.CompletedTask;
         }

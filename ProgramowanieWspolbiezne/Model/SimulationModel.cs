@@ -13,6 +13,7 @@ public sealed class SimulationModel : Base
     public double PlayfieldHeight { get; } = 430;
 
     private CancellationTokenSource? _cts;
+    private TaskCompletionSource<bool> _tick = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     public ObservableCollection<BallExtended> Balls { get; } = new();
 
@@ -59,14 +60,28 @@ public sealed class SimulationModel : Base
 
         _cts = new CancellationTokenSource();
         CancellationToken token = _cts.Token;
+        _ = Task.Run(() => RunTimerAsync(token), token);
 
         foreach (var ball in _logic.Balls)
         {
-            _ = Task.Run(() => _logic.MoveBallAsync(token, ball, PlayfieldWidth, PlayfieldHeight), token);
+            _ = Task.Run(() => _logic.MoveBallAsync(token, ball, PlayfieldWidth, PlayfieldHeight, () => _tick.Task), token);
         }
 
         IsRunning = true;
     }
+
+    private async Task RunTimerAsync(CancellationToken token)
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(16));
+
+        while (await timer.WaitForNextTickAsync(token))
+        {
+            var old = _tick;
+            _tick = new(TaskCreationOptions.RunContinuationsAsynchronously);
+            old.SetResult(true);
+        }
+    }
+
 
     public void Stop()
     {
@@ -76,6 +91,13 @@ public sealed class SimulationModel : Base
         _cts?.Cancel();
         _cts?.Dispose();
         _cts = null;
+        try
+        {
+            _tick.TrySetResult(true);
+        }
+        catch { }
+
+        _tick = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
         IsRunning = false;
     }

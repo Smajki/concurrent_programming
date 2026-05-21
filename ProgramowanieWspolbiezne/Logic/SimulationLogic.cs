@@ -1,8 +1,9 @@
+using Data;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Data;
 using System.Diagnostics;
+using System.Linq;
+using System.Timers;
 
 namespace Logic
 {
@@ -58,13 +59,11 @@ namespace Logic
 
         }
 
-        public async Task MoveBallAsync(CancellationToken token, IBall ball, double areaWidth, double areaHeight)
+        public async Task MoveBallAsync(CancellationToken token, IBall ball, double areaWidth, double areaHeight, Func<Task> waitForTick)
         {
-            Stopwatch stopwach = new Stopwatch();
             while (!token.IsCancellationRequested)
             {
-                stopwach.Restart();
-
+                await waitForTick();
                 checkCollisonsWithWalls(ball, areaWidth, areaHeight);
                 CheckBallsCollisions(ball);
 
@@ -74,10 +73,6 @@ namespace Logic
                 double d = ball.Diameter;
 
                 BallStateChanged?.Invoke(this, new BallStateChangedEventArgs(id, x, y, d));
-
-                stopwach.Stop();
-                int delay = Math.Max(0, 16 - (int)stopwach.Elapsed.Milliseconds);
-                await Task.Delay(delay, token);
             }
         }
 

@@ -110,7 +110,7 @@ public sealed class MainViewModelTests
         {
         }
 
-        public Task MoveBallAsync(CancellationToken token, IBall ball, double areaWidth, double areaHeight)
+        public Task MoveBallAsync(CancellationToken token, IBall ball, double areaWidth, double areaHeight, Func<Task> waitForTick)
             => Task.CompletedTask;
 
         public void Clear() => _balls.Clear();
